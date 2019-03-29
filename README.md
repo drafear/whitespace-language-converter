@@ -57,10 +57,16 @@ The above code calculates 10 + 9 + ... + 1 and output it.
 Push n to the top of the stack.
 
 - `printi`
-Print the top of the stack as an integer.
+Print the top of the stack as an integer and discard it.
 
 - `printc`
-Print the top of the stack as an character.
+Print the top of the stack as an character and discard it.
+
+- `readc`
+Read a character from stdin and store the address pointed by the top of the stack and discard it.
+
+- `readi`
+Read an integer from stdin and store the address pointed by the top of the stack and discard it.
 
 - `dup`
 Duplicate the top of the stack.
@@ -92,23 +98,39 @@ Let X be the reminder of the second element divided by the first element of the 
 Discard these two elements and push X.
 
 - `store`
+Store the top of the stack to the address pointed by the second element of the stack and discard them.
 
 - `retrieve`
+Retrieve a value from the address pointed by the top of the stack, discard it and push the value.
 
 - `end`
-
-- `readc`
-
-- `readi`
+Exit.
 
 - `<label>:`
+Set a label.
 
 - `call <label>`
+Call a subroutine starting from `<label>`.
 
 - `jmp <label>`
+Jump to `<label>`.
 
 - `jz <label>`
+Discard the top of the stack and if it's zero then jump to `<label>`.
 
 - `jn <label>`
+Discard the top of the stack and if it's negative then jump to `<label>`.
 
 - `ret`
+Exit the current subroutine.
+
+- `#...`
+Comments.
+
+- `  ...`
+Indents.
+
+## Not Supported
+
+- `copy <n>`
+- `slide <n>`
