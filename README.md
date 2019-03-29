@@ -3,7 +3,7 @@ Provide a converter from our language to whitespace
 
 ## Installation and Usage
 
-put `to_ws.py` to any location and type the following command
+Put `to_ws.py` to any location and type the following command
 
 ```bash
 python to_ws.py readable.hws -o beautiful.ws
@@ -55,6 +55,12 @@ The above code calculates 10 + 9 + ... + 1 and output it.
 
 - `push <n>` (n: integer)
 Push n to the top of the stack.
+
+- `copy <n>`
+Copy the n-th element from the top of the stack.
+
+- `slide <n>`
+Discards the 2, 3, ..., (n+1)-th element from the top of the stack.
 
 - `printi`
 Print the top of the stack as an integer and discard it.
@@ -129,8 +135,3 @@ Comments.
 
 - `  ...`
 Indents.
-
-## Not Supported
-
-- `copy <n>`
-- `slide <n>`

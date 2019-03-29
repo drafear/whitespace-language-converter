@@ -80,6 +80,24 @@ def convert_line(input_file: str, linenumber: int, line: str):
             return f'  {convert_int(int(arg))}', '\n'
         else:
             return f'  {convert_lit(arg)}', '\n'
+    elif op == 'slide':
+        if arg == '':
+            raise RuntimeError(f'{error_prefix}command "slide" takes 1 argument')
+        if not is_lit(arg):
+            raise RuntimeError(f'{error_prefix}"{arg}" is not an integer/a character')
+        if is_int(arg):
+            return f' \t\n {convert_int(int(arg))}', '\n'
+        else:
+            return f' \t\n {convert_lit(arg)}', '\n'
+    elif op == 'copy':
+        if arg == '':
+            raise RuntimeError(f'{error_prefix}command "copy" takes 1 argument')
+        if not is_lit(arg):
+            raise RuntimeError(f'{error_prefix}"{arg}" is not an integer/a character')
+        if is_int(arg):
+            return f' \t\n {convert_int(int(arg))}', '\n'
+        else:
+            return f' \t\n {convert_lit(arg)}', '\n'
     elif op == 'printi':
         return '\t\n \t', ''
     elif op == 'printc':
