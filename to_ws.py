@@ -15,6 +15,9 @@ def parseargs():
 def is_int(n: str):
     return re.compile(r'^(0|-?[1-9]\d*)$').match(n) is not None
 
+def is_lit(n: str):
+    return re.compile(r'^(0|-?[1-9]\d*|\'(.|[ ]|\\[nbtr])\')$').match(n) is not None
+
 def to_bin(n: int):
     if n == 0:
         return '0'
@@ -30,6 +33,20 @@ def convert_int(n: int):
         else:
             res += ' '
     return res
+
+def convert_lit(s: str):
+    if len(s) == 4 and s[1] == '\\':
+        if s[2] == 'n':
+            c = '\n'
+        elif s[2] == 't':
+            c = '\t'
+        elif s[2] == 'b':
+            c = '\b'
+        elif s[2] == 'r':
+            c = '\r'
+    else:
+        c = s[1]
+    return convert_int(ord(c))
 
 def check_labelname(labelname: str):
     return labelname != ''
@@ -53,13 +70,16 @@ def convert_line(input_file: str, linenumber: int, line: str):
     cmd = line.strip().split(' ')
     error_prefix = f'{input_file}:{linenumber}: '
     op = cmd[0]
-    args = cmd[1:]
+    arg = ' '.join(cmd[1:])
     if op == 'push':
-        if len(args) != 1:
+        if arg == '':
             raise RuntimeError(f'{error_prefix}command "push" takes 1 argument')
-        if not is_int(args[0]):
-            raise RuntimeError(f'{error_prefix}"{args[0]}" is not an integer')
-        return f'  {convert_int(int(args[0]))}', '\n'
+        if not is_lit(arg):
+            raise RuntimeError(f'{error_prefix}"{arg}" is not an integer/a character')
+        if is_int(arg):
+            return f'  {convert_int(int(arg))}', '\n'
+        else:
+            return f'  {convert_lit(arg)}', '\n'
     elif op == 'printi':
         return '\t\n \t', ''
     elif op == 'printc':
@@ -89,33 +109,33 @@ def convert_line(input_file: str, linenumber: int, line: str):
     elif op == 'readc':
         return '\t\n\t ', ''
     elif op == 'readi':
-        return '\t\n\t\n', ''
+        return '\t\n\t\t', ''
     elif op == 'ret':
         return '\n\t\n', ''
     elif op == 'call':
-        if len(args) != 1:
+        if arg == '':
             raise RuntimeError(f'{error_prefix}command "call" takes 1 argument')
-        if not check_labelname(args[0]):
-            raise RuntimeError(f'{error_prefix}invalid label name: {args[0]}')
-        return f'\n \t{get_label(args[0])}', '\n'
+        if not check_labelname(arg):
+            raise RuntimeError(f'{error_prefix}invalid label name: {arg}')
+        return f'\n \t{get_label(arg)}', '\n'
     elif op == 'jmp':
-        if len(args) != 1:
+        if arg == '':
             raise RuntimeError(f'{error_prefix}command "jmp" takes 1 argument')
-        if not check_labelname(args[0]):
-            raise RuntimeError(f'{error_prefix}invalid label name: {args[0]}')
-        return f'\n \n{get_label(args[0])}', '\n'
+        if not check_labelname(arg):
+            raise RuntimeError(f'{error_prefix}invalid label name: {arg}')
+        return f'\n \n{get_label(arg)}', '\n'
     elif op == 'jz':
-        if len(args) != 1:
+        if arg == '':
             raise RuntimeError(f'{error_prefix}command "jz" takes 1 argument')
-        if not check_labelname(args[0]):
-            raise RuntimeError(f'{error_prefix}invalid label name: {args[0]}')
-        return f'\n\t {get_label(args[0])}', '\n'
+        if not check_labelname(arg):
+            raise RuntimeError(f'{error_prefix}invalid label name: {arg}')
+        return f'\n\t {get_label(arg)}', '\n'
     elif op == 'jn':
-        if len(args) != 1:
+        if arg == '':
             raise RuntimeError(f'{error_prefix}command "jn" takes 1 argument')
-        if not check_labelname(args[0]):
-            raise RuntimeError(f'{error_prefix}invalid label name: {args[0]}')
-        return f'\n\t\t{get_label(args[0])}', '\n'
+        if not check_labelname(arg):
+            raise RuntimeError(f'{error_prefix}invalid label name: {arg}')
+        return f'\n\t\t{get_label(arg)}', '\n'
     elif op[-1] == ':':
         labelname = op[:-1]
         return f'\n  {get_label(labelname)}', '\n'
@@ -151,8 +171,9 @@ def convert(input_file: str, output_file: str):
     nxt = ""
     reg = re.compile(r'#.*')
     with open(input_file, 'r', encoding='utf-8') as f:
-        linenumber = 1
+        linenumber = 0
         for line in f:
+            linenumber += 1
             # for comments
             line = reg.sub('', line.strip())
             if line == '':
@@ -160,7 +181,6 @@ def convert(input_file: str, output_file: str):
             ws += nxt
             converted, nxt = convert_line(input_file, linenumber, line)
             ws += converted
-            linenumber += 1
     # convert labels
     ws = convert_labels(ws)
     with open(output_file, 'w', encoding='utf-8') as f:
